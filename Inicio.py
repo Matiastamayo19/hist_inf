@@ -29,30 +29,37 @@ def encode_image_to_base64(image_path):
 
 
 # Streamlit 
-st.set_page_config(page_title='Tablero Inteligente')
-st.title('Tablero Inteligente')
+st.title("Tablero para dibujo")
+
 with st.sidebar:
-    st.subheader("Acerca de:")
-    st.subheader("En esta aplicación veremos la capacidad que ahora tiene una máquina de interpretar un boceto")
-st.subheader("Dibuja el boceto en el panel y presiona el botón para analizarla")
+    st.subheader("Propiedades del tablero")
 
-# Add canvas component
-drawing_mode = "freedraw"
-stroke_width = st.sidebar.slider('Selecciona el ancho de línea', 1, 30, 5)
-stroke_color = "#000000" 
-bg_color = '#FFFFFF'
+    st.subheader("Dimensiones del tablero")
+    canvas_width = st.slider("Ancho del tablero", 400, 900, 700, 50)
+    canvas_height = st.slider("Alto del tablero", 300, 700, 300, 50)
 
-# Create a canvas component
+    drawing_mode = st.selectbox(
+        "Herramienta de dibujo:",
+        ("freedraw", "line", "rect", "circle", "transform", "polygon", "point"),
+    )
+
+    stroke_width = st.slider('Seleccione el ancho de linea', 1, 30, 15)
+
+    stroke_color = st.color_picker("Color de trazo", "#FFFFFF")
+
+    bg_color = st.color_picker("Color de fondo", "#000000")
+
 canvas_result = st_canvas(
     fill_color="rgba(255, 165, 0, 0.3)",
     stroke_width=stroke_width,
     stroke_color=stroke_color,
     background_color=bg_color,
-    height=300,
-    width=400,
+    height=canvas_height,
+    width=canvas_width,
     drawing_mode=drawing_mode,
-    key="canvas",
+    key=f"canvas_{canvas_width}_{canvas_height}",
 )
+
 
 ke = st.text_input('Ingresa tu Clave', type="password")
 os.environ['OPENAI_API_KEY'] = ke
@@ -127,7 +134,7 @@ if st.session_state.analysis_done:
     
     if st.button("✨ Crear historia infantil"):
         with st.spinner("Creando historia..."):
-            story_prompt = f"Basándote en esta descripción: '{st.session_state.full_response}', crea una historia infantil breve y entretenida. La historia debe ser creativa y apropiada para niños."
+            story_prompt = f"Basándote en esta descripción: '{st.session_state.full_response}', Crea una historia de ciencia ficcion basada en lo que acabas de ver."
             
             story_response = openai.chat.completions.create(
                 model="gpt-4o-mini",
